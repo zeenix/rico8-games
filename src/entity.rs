@@ -21,8 +21,8 @@ pub trait Entity: 'static {
             self.sprite().id,
             pos.x,
             pos.y,
-            size.width.into(),
-            size.height.into(),
+            size.width,
+            size.height,
             false,
             false,
         );

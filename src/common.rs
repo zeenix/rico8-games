@@ -8,8 +8,8 @@ pub struct Position {
 
 #[derive(Debug, Clone, Copy)]
 pub struct Size {
-    pub width: u8,
-    pub height: u8,
+    pub width: f32,
+    pub height: f32,
 }
 
 #[derive(Debug, Clone, Copy)]
