@@ -8,27 +8,21 @@ use crate::{
 #[derive(Debug)]
 pub struct Bullet {
     pos: Position,
-    sprite: Sprite,
     entity_type: entity::Type,
 }
 
 impl Bullet {
-    pub fn new(pos: Position, entity_type: entity::Type) -> Self {
-        let sprite = match entity_type {
-            entity::Type::EnemyBullet => Sprite {
-                id: ENEMY_SPRITE_ID,
-                size: ENEMY_SIZE,
-            },
-            entity::Type::FriendlyBullet => Sprite {
-                id: FRIENDLY_SPRITE_ID,
-                size: FRIENDLY_SIZE,
-            },
-            _ => unreachable!("unknown bullet type"),
-        };
+    pub fn new_friendly(pos: Position) -> Self {
         Self {
             pos,
-            sprite,
-            entity_type,
+            entity_type: entity::Type::FriendlyBullet,
+        }
+    }
+
+    pub fn new_enemy(pos: Position) -> Self {
+        Self {
+            pos,
+            entity_type: entity::Type::EnemyBullet,
         }
     }
 }
@@ -43,7 +37,17 @@ impl Entity for Bullet {
     }
 
     fn sprite(&self) -> Sprite {
-        self.sprite
+        match self.entity_type {
+            entity::Type::EnemyBullet => Sprite {
+                id: ENEMY_SPRITE_ID,
+                size: ENEMY_SIZE,
+            },
+            entity::Type::FriendlyBullet => Sprite {
+                id: FRIENDLY_SPRITE_ID,
+                size: FRIENDLY_SIZE,
+            },
+            _ => unreachable!("unknown bullet type"),
+        }
     }
 
     fn entity_type(&self) -> entity::Type {
