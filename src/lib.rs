@@ -39,6 +39,8 @@ impl Game for Cart {
 
     fn draw(&self, gfx: &mut Graphics) {
         gfx.clear(Color::BLACK);
+        // TODO: Scrolling map.
+        gfx.map(0, 0, 0.0, 0.0, 16, 32, 0);
 
         if let Some(b) = &self.enemy_bullet {
             b.draw(gfx);
