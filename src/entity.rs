@@ -1,6 +1,6 @@
 use core::any::Any;
 
-use rico8::{Context, Graphics};
+use rico8::{Context, Graphics, SCREEN_H};
 
 use crate::common::{Direction, Position, Size, Sprite};
 
@@ -10,14 +10,24 @@ pub trait Entity: 'static {
     fn sprite(&self) -> Sprite;
     fn entity_type(&self) -> Type;
 
-    /// Returns `true` if the entity is outside the screen after the update.
-    fn update(&mut self, ctx: &mut Context) -> bool;
+    /// Returns `true` if the entity is outside the screen.
+    fn outside(&self) -> bool {
+        let pos = self.position();
+
+        pos.x >= SCREEN_H as f32 || pos.x < 0.0 || pos.y >= SCREEN_H as f32 || pos.y < 0.0
+    }
+
+    fn update(&mut self, ctx: &mut Context);
 
     fn draw(&self, gfx: &mut Graphics) {
+        self.draw_default(gfx);
+    }
+
+    fn draw_default(&self, gfx: &mut Graphics) {
         let pos = self.position();
         let size = self.sprite().size_in_blocks();
 
-        gfx.spr_ext(
+        gfx.sprite_ext(
             self.sprite().id,
             pos.x,
             pos.y,
@@ -28,30 +38,30 @@ pub trait Entity: 'static {
         );
     }
 
-    fn go(&mut self, dir: Option<Direction>, distance: u8) {
-        let Some(dir) = dir else {
-            return;
-        };
+    fn go(&mut self, dir: Direction, distance: f32) {
+        self.go_default(dir, distance);
+    }
+
+    fn go_default(&mut self, dir: Direction, distance: f32) {
         let pos = self.position_mut();
-        let distance: f32 = distance.into();
         match dir {
             Direction::Left => pos.x -= distance,
             Direction::Right => pos.x += distance,
             Direction::Up => pos.y -= distance,
             Direction::Down => pos.y += distance,
-            Direction::LeftUp => {
+            Direction::UpLeft => {
                 pos.x -= distance;
                 pos.y -= distance;
             }
-            Direction::LeftDown => {
+            Direction::DownLeft => {
                 pos.x -= distance;
                 pos.y += distance;
             }
-            Direction::RightUp => {
+            Direction::UpRight => {
                 pos.x += distance;
                 pos.y -= distance;
             }
-            Direction::RightDown => {
+            Direction::DownRight => {
                 pos.x += distance;
                 pos.y += distance;
             }

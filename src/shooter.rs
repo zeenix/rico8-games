@@ -1,0 +1,47 @@
+use rico8::Context;
+
+use crate::{bullet::Bullet, entity::Entity};
+
+pub trait Shooter: Entity {
+    /// The bullet properties.
+    fn bullet_props(&self) -> BulletProps;
+
+    /// Time last bullet was fired by this shooter.
+    fn last_bullet(&self) -> f32;
+    /// Reset the time last bullet was fired by this shooter to the current time.
+    fn reset_last_bullet(&mut self, ctx: &Context);
+
+    #[must_use = "Why create a bullet just to drop it?"]
+    fn shoot(&mut self, ctx: &mut Context) -> Option<Bullet> {
+        if !self.bullet_cool_down(ctx) {
+            return None;
+        }
+        if !self.is_enemy() && !ctx.btn(rico8::Button::O) {
+            return None;
+        }
+
+        let bprops = self.bullet_props();
+        let x = self.position().x + bprops.x_offset;
+        let y = self.position().y + bprops.y_offset;
+        let bullet = if self.is_enemy() {
+            Bullet::new_enemy(x, y, ctx)
+        } else {
+            Bullet::new_friendly(x, y, ctx)
+        };
+        self.reset_last_bullet(ctx);
+
+        Some(bullet)
+    }
+
+    /// Returns true if there has been sufficient time since the last bullet.
+    fn bullet_cool_down(&self, ctx: &Context) -> bool {
+        ctx.time() - self.last_bullet() > self.bullet_props().interval
+    }
+}
+
+#[derive(Debug)]
+pub struct BulletProps {
+    pub x_offset: f32,
+    pub y_offset: f32,
+    pub interval: f32,
+}

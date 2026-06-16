@@ -1,4 +1,4 @@
-use rico8::{Context, SfxId, SpriteId, SCREEN_H};
+use rico8::{Context, SfxId, SpriteId};
 
 use crate::{
     common::{Direction, Position, Size, Sprite},
@@ -57,16 +57,14 @@ impl Entity for Bullet {
         self.entity_type
     }
 
-    fn update(&mut self, _ctx: &mut Context) -> bool {
-        if self.is_enemy() {
-            self.go(Some(Direction::Down), SPEED);
-
-            self.pos.y >= SCREEN_H as f32
+    fn update(&mut self, _ctx: &mut Context) {
+        let dir = if self.is_enemy() {
+            Direction::Down
         } else {
-            self.go(Some(Direction::Up), SPEED);
+            Direction::Up
+        };
 
-            self.pos.y < 0.0
-        }
+        self.go(dir, SPEED);
     }
 }
 
@@ -80,5 +78,5 @@ const ENEMY_SIZE: Size = Size {
     width: 1.0,
     height: 7.0,
 };
-const SPEED: u8 = 2;
+const SPEED: f32 = 2.0;
 const SFX_ID: SfxId = SfxId(0);

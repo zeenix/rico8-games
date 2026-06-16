@@ -34,8 +34,8 @@ pub enum Direction {
     Up,
     Down,
 
-    LeftUp,
-    LeftDown,
-    RightUp,
-    RightDown,
+    UpLeft,
+    UpRight,
+    DownLeft,
+    DownRight,
 }

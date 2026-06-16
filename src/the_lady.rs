@@ -1,0 +1,109 @@
+use rico8::{Button, Context, SfxId, SpriteId, SCREEN_H, SCREEN_W};
+
+use crate::{
+    common::{Direction, Position, Size, Sprite},
+    entity::{self, Entity},
+    shooter::{BulletProps, Shooter},
+};
+
+#[derive(Debug)]
+pub struct TheLady {
+    pos: Position,
+    last_bullet: f32,
+}
+
+impl TheLady {
+    pub fn new() -> Self {
+        // TODO: Rotors.
+        Self {
+            pos: STARTING_POSITION,
+            last_bullet: 0.0,
+        }
+    }
+}
+
+impl Shooter for TheLady {
+    /// The bullet properties.
+    fn bullet_props(&self) -> BulletProps {
+        BulletProps {
+            x_offset: 0.0,
+            y_offset: -1.0,
+            interval: 0.4,
+        }
+    }
+
+    fn last_bullet(&self) -> f32 {
+        self.last_bullet
+    }
+
+    fn reset_last_bullet(&mut self, ctx: &Context) {
+        self.last_bullet = ctx.time();
+    }
+}
+
+impl Entity for TheLady {
+    fn position(&self) -> Position {
+        self.pos
+    }
+
+    fn position_mut(&mut self) -> &mut Position {
+        &mut self.pos
+    }
+
+    fn sprite(&self) -> Sprite {
+        Sprite {
+            id: SPRITE_ID,
+            size: SIZE,
+        }
+    }
+
+    fn entity_type(&self) -> entity::Type {
+        entity::Type::Protoganist
+    }
+
+    fn update(&mut self, ctx: &mut Context) {
+        let pos = self.pos;
+        let Size { width, height } = self.sprite().size;
+
+        let can_left = pos.x > -1.0;
+        let can_right = pos.x + width < SCREEN_W as f32 - 2.0;
+        let can_up = pos.y > 0.0;
+        let can_down = pos.y + height < SCREEN_H as f32;
+        let can_up_left = can_left && can_up;
+        let can_down_left = can_left && can_down;
+        let can_up_right = can_right && can_up;
+        let can_down_right = can_right && can_down;
+
+        let buttons = ctx.buttons_down();
+        let dir = if buttons.contains(Button::UP_LEFT) && can_up_left {
+            Direction::UpLeft
+        } else if buttons.contains(Button::UP_RIGHT) && can_up_right {
+            Direction::UpRight
+        } else if buttons.contains(Button::DOWN_LEFT) && can_down_left {
+            Direction::DownLeft
+        } else if buttons.contains(Button::DOWN_RIGHT) && can_down_right {
+            Direction::DownRight
+        } else if buttons.contains(Button::Up) && can_up {
+            Direction::Up
+        } else if buttons.contains(Button::Down) && can_down {
+            Direction::Down
+        } else if buttons.contains(Button::Left) && can_left {
+            Direction::Left
+        } else if buttons.contains(Button::Right) && can_right {
+            Direction::Right
+        } else {
+            return;
+        };
+
+        self.go(dir, SPEED);
+    }
+}
+
+const SPRITE_ID: SpriteId = SpriteId(1);
+const SIZE: Size = Size {
+    width: 8.0,
+    height: 8.0,
+};
+const STARTING_POSITION: Position = Position { x: 63.0, y: 111.0 };
+const SFX_ID: SfxId = SfxId(0);
+const SPEED: f32 = 0.7;
