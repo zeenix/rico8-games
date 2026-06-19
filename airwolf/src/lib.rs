@@ -6,14 +6,14 @@ mod entity;
 mod shooter;
 mod the_lady;
 
+use heapless::Vec;
 use rico8::*;
 
-use crate::{bullet::Bullet, entity::Entity, the_lady::TheLady};
+use crate::{bullet::Bullet, entity::Entity, shooter::Shooter, the_lady::TheLady};
 
 #[derive(Debug)]
 struct Cart {
-    enemy_bullet: Option<Bullet>,
-    friendly_bullet: Option<Bullet>,
+    friendly_bullets: Vec<Bullet, MAX_FRIENDLY_BULLETS>,
 
     the_lady: TheLady,
 }
@@ -22,26 +22,16 @@ impl Game for Cart {
     fn update(&mut self, ctx: &mut Context) {
         self.the_lady.update(ctx);
 
-        match &mut self.enemy_bullet {
-            Some(b) => {
-                b.update(ctx);
-                if b.outside() {
-                    self.enemy_bullet = None;
-                }
-            }
-            None => self.enemy_bullet = Some(Bullet::new_enemy(20.0, 0.0, ctx)),
-        }
+        self.friendly_bullets.retain_mut(|b| {
+            b.update(ctx);
 
-        match &mut self.friendly_bullet {
-            Some(b) => {
-                b.update(ctx);
-                if b.outside() {
-                    self.friendly_bullet = None;
-                }
-            }
-            None => {
-                self.friendly_bullet = Some(Bullet::new_friendly(80.0, SCREEN_H as f32 - 1.0, ctx))
-            }
+            !b.outside()
+        });
+
+        if let Some(b) = self.the_lady.shoot(ctx) {
+            self.friendly_bullets.push(b).unwrap_or_else(|_| {
+                logf!(ctx, "Err: Too many bullets: {}", MAX_FRIENDLY_BULLETS);
+            })
         }
     }
 
@@ -52,11 +42,7 @@ impl Game for Cart {
 
         self.the_lady.draw(gfx);
 
-        if let Some(b) = &self.enemy_bullet {
-            b.draw(gfx);
-        }
-
-        if let Some(b) = &self.friendly_bullet {
+        for b in &self.friendly_bullets {
             b.draw(gfx);
         }
     }
@@ -64,9 +50,10 @@ impl Game for Cart {
 
 rico8::game!(
     Cart = Cart {
-        enemy_bullet: None,
-        friendly_bullet: None,
+        friendly_bullets: Vec::new(),
 
         the_lady: TheLady::new(),
     }
 );
+
+const MAX_FRIENDLY_BULLETS: usize = 16;
