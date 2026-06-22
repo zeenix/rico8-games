@@ -18,7 +18,6 @@ pub struct TheLady {
 
 impl TheLady {
     pub fn new() -> Self {
-        // TODO: Rotors.
         Self {
             body: Body::new(STARTING_POSITION.x, STARTING_POSITION.y),
             main_rotor: Rotor::new(MAIN_ROTOR_OFFSET, MAIN_ROTOR_LENGTH),
