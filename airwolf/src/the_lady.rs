@@ -1,4 +1,4 @@
-use rico8::{Body, Button, Color, Context, SfxId, SpriteId, SCREEN_H, SCREEN_W};
+use rico8::{Body, Button, Color, Context, SpriteId, SCREEN_H, SCREEN_W};
 
 use crate::{
     common::{Direction, Position, Size, Sprite},
@@ -112,5 +112,4 @@ const SIZE: Size = Size {
     height: 8.0,
 };
 const STARTING_POSITION: Position = Position { x: 63.0, y: 111.0 };
-const SFX_ID: SfxId = SfxId(0);
 const SPEED: f32 = 0.7;
