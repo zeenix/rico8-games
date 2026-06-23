@@ -5,7 +5,7 @@ use crate::{
     entity::{self, Entity},
     rotor::Rotor,
     shooter::{BulletProps, Shooter},
-    Scene,
+    CartState, Scene,
 };
 
 #[derive(Debug)]
@@ -105,8 +105,8 @@ impl Entity for TheLady {
         entity::Type::Protoganist
     }
 
-    fn update(&mut self, ctx: &mut Context, scene: &Scene) {
-        if matches!(scene, Scene::Game { .. }) {
+    fn update(&mut self, ctx: &mut Context, state: &CartState) {
+        if matches!(state.scene, Scene::Game { .. }) {
             self.move_it(ctx);
         }
 
@@ -115,10 +115,10 @@ impl Entity for TheLady {
         self.tail_rotor.update(pos);
     }
 
-    fn draw(&self, gfx: &mut rico8::Graphics, scene: &Scene) {
+    fn draw(&self, gfx: &mut rico8::Graphics, state: &CartState) {
         gfx.set_transparent_color(Color::BLACK, false);
         gfx.set_transparent_color(Color::DARK_GREY, true);
-        self.draw_default(gfx, scene);
+        self.draw_default(gfx, state);
         gfx.reset_transparency();
 
         self.main_rotor.draw(gfx);

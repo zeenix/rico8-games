@@ -3,7 +3,7 @@ use rico8::{Body, Context, SfxId, SpriteId};
 use crate::{
     common::{Direction, Size, Sprite},
     entity::{self, Entity},
-    Scene,
+    CartState,
 };
 
 #[derive(Debug)]
@@ -58,7 +58,7 @@ impl Entity for Bullet {
         self.entity_type
     }
 
-    fn update(&mut self, _ctx: &mut Context, _scene: &Scene) {
+    fn update(&mut self, _ctx: &mut Context, _state: &CartState) {
         let dir = if self.is_enemy() {
             Direction::Down
         } else {

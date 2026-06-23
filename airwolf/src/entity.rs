@@ -4,7 +4,7 @@ use rico8::{Body, Context, Graphics, SCREEN_H};
 
 use crate::{
     common::{Direction, Size, Sprite},
-    Scene,
+    CartState,
 };
 
 pub trait Entity: 'static {
@@ -16,17 +16,21 @@ pub trait Entity: 'static {
     /// Returns `true` if the entity is outside the screen.
     fn outside(&self) -> bool {
         let (x, y) = self.body().draw_pos();
+        let size = self.sprite().size_in_blocks();
 
-        x >= SCREEN_H as f32 || x < 0.0 || y >= SCREEN_H as f32 || y < 0.0
+        x >= SCREEN_H as f32
+            || (x + size.width) < 0.0
+            || y >= SCREEN_H as f32
+            || (y + size.height) < 0.0
     }
 
-    fn update(&mut self, ctx: &mut Context, scene: &Scene);
+    fn update(&mut self, ctx: &mut Context, state: &CartState);
 
-    fn draw(&self, gfx: &mut Graphics, scene: &Scene) {
-        self.draw_default(gfx, scene);
+    fn draw(&self, gfx: &mut Graphics, state: &CartState) {
+        self.draw_default(gfx, state);
     }
 
-    fn draw_default(&self, gfx: &mut Graphics, scene: &Scene) {
+    fn draw_default(&self, gfx: &mut Graphics, _state: &CartState) {
         let (x, y) = self.body().draw_pos();
         let size = self.sprite().size_in_blocks();
 
