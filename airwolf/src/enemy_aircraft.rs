@@ -118,4 +118,4 @@ const MAIN_ROTOR_LENGTH: f32 = 2.0;
 const TAIL_ROTOR_OFFSET: Position = Position { x: 2.0, y: 0.0 };
 const TAIL_ROTOR_LENGTH: f32 = 1.0;
 const STARTING_Y: f32 = -8.0;
-const SPEED: f32 = 0.7;
+const SPEED: f32 = 0.3;
