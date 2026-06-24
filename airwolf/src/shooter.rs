@@ -13,10 +13,10 @@ pub trait Shooter: Entity {
 
     #[must_use = "Why create a bullet just to drop it?"]
     fn shoot(&mut self, ctx: &mut Context) -> Option<Bullet> {
-        if !self.bullet_cool_down(ctx) {
-            return None;
-        }
-        if !self.is_enemy() && !ctx.btn(rico8::Button::O) {
+        if !self.alive()
+            || !self.bullet_cool_down(ctx)
+            || !self.is_enemy() && !ctx.btn(rico8::Button::O)
+        {
             return None;
         }
 
