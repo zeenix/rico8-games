@@ -1,4 +1,4 @@
-use rico8::{Body, Button, Color, Context, SpriteId, SCREEN_H, SCREEN_W};
+use rico8::{Body, Button, Color, Context, SfxId, SpriteId, SCREEN_H, SCREEN_W};
 
 use crate::{
     common::{Direction, Position, Size, Sprite},
@@ -14,6 +14,7 @@ pub struct TheLady {
     main_rotor: Rotor,
     tail_rotor: Rotor,
     last_bullet: f32,
+    alive: bool,
 }
 
 impl TheLady {
@@ -23,6 +24,7 @@ impl TheLady {
             main_rotor: Rotor::new(MAIN_ROTOR_OFFSET, MAIN_ROTOR_LENGTH),
             tail_rotor: Rotor::new(TAIL_ROTOR_OFFSET, TAIL_ROTOR_LENGTH),
             last_bullet: 0.0,
+            alive: true,
         }
     }
 
@@ -105,6 +107,10 @@ impl Entity for TheLady {
         entity::Type::Protoganist
     }
 
+    fn alive(&self) -> bool {
+        self.alive
+    }
+
     fn update(&mut self, ctx: &mut Context, state: &CartState) {
         if matches!(state.scene, Scene::Game { .. }) {
             self.move_it(ctx);
@@ -124,6 +130,11 @@ impl Entity for TheLady {
         self.main_rotor.draw(gfx);
         self.tail_rotor.draw(gfx);
     }
+
+    fn hit(&mut self, ctx: &mut Context) {
+        ctx.sfx(DESTROY_SFX);
+        self.alive = false;
+    }
 }
 
 const SPRITE_ID: SpriteId = SpriteId(1);
@@ -137,3 +148,4 @@ const TAIL_ROTOR_OFFSET: Position = Position { x: 4.0, y: 7.0 };
 const TAIL_ROTOR_LENGTH: f32 = 1.0;
 const STARTING_POSITION: Position = Position { x: 63.0, y: 111.0 };
 const SPEED: f32 = 0.7;
+const DESTROY_SFX: SfxId = SfxId(1);

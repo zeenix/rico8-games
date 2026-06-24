@@ -10,6 +10,7 @@ use crate::{
 pub struct Bullet {
     body: Body,
     entity_type: entity::Type,
+    alive: bool,
 }
 
 impl Bullet {
@@ -27,6 +28,7 @@ impl Bullet {
         Self {
             body: Body::new(x, y),
             entity_type,
+            alive: true,
         }
     }
 }
@@ -58,6 +60,10 @@ impl Entity for Bullet {
         self.entity_type
     }
 
+    fn alive(&self) -> bool {
+        self.alive
+    }
+
     fn update(&mut self, _ctx: &mut Context, _state: &CartState) {
         let dir = if self.is_enemy() {
             Direction::Down
@@ -66,6 +72,10 @@ impl Entity for Bullet {
         };
 
         self.go(dir, SPEED);
+    }
+
+    fn hit(&mut self, _ctx: &mut Context) {
+        self.alive = false;
     }
 }
 

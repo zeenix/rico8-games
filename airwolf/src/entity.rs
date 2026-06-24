@@ -24,6 +24,9 @@ pub trait Entity: 'static {
             || (y + size.height) < 0.0
     }
 
+    /// Wether this entity is still alive.
+    fn alive(&self) -> bool;
+
     fn update(&mut self, ctx: &mut Context, state: &CartState);
 
     fn draw(&self, gfx: &mut Graphics, state: &CartState) {
@@ -61,8 +64,16 @@ pub trait Entity: 'static {
             Direction::UpRight => body.move_by(distance, -distance),
             Direction::DownRight => body.move_by(distance, distance),
         }
+    }
 
-        // TODO: Handle collision.
+    /// Check for collision and act on it.
+    fn handle_collision(&mut self, other: &mut dyn Entity, ctx: &mut Context) {
+        if !self.collided(other) {
+            return;
+        }
+
+        self.hit(ctx);
+        other.hit(ctx);
     }
 
     fn collided(&self, other: &dyn Entity) -> bool {
@@ -89,6 +100,8 @@ pub trait Entity: 'static {
             && our_y < other_y + other_height
             && our_y + our_height > other_y
     }
+
+    fn hit(&mut self, ctx: &mut Context);
 
     fn is_enemy(&self) -> bool {
         matches!(self.entity_type(), Type::Enemy | Type::EnemyBullet)

@@ -73,6 +73,12 @@ impl Cart {
         };
     }
 
+    fn end_game(&mut self, ctx: &mut Context) {
+        self.scene = Scene::GameOver { ts: ctx.time() };
+        self.playing_music.take().map(|p| p.stop());
+        self.smap.stop_scrolling();
+    }
+
     fn state(&self) -> CartState {
         CartState {
             scene: self.scene.clone(),
@@ -98,9 +104,25 @@ impl Game for Cart {
         self.the_lady.update(ctx, &self.state());
 
         let state = self.state();
-        self.bullets.retain_mut(|b| retain_fn(b, ctx, &state));
-        self.enemy_aircrafts
-            .retain_mut(|b| retain_fn(b, ctx, &state));
+        self.bullets.retain_mut(|bullet| {
+            match bullet.entity_type() {
+                entity::Type::EnemyBullet => bullet.handle_collision(&mut self.the_lady, ctx),
+                entity::Type::FriendlyBullet => {
+                    for aircraft in &mut self.enemy_aircrafts {
+                        bullet.handle_collision(aircraft, ctx);
+                    }
+                }
+                _ => unreachable!("unknown bullet type encountered"),
+            }
+
+            retain_fn(bullet, ctx, &state)
+        });
+        self.enemy_aircrafts.retain_mut(|aircraft| {
+            debug_assert!(matches!(aircraft.entity_type(), entity::Type::Enemy));
+            aircraft.handle_collision(&mut self.the_lady, ctx);
+
+            retain_fn(aircraft, ctx, &state)
+        });
 
         if let Some(b) = self.the_lady.shoot(ctx) {
             self.bullets.push(b).unwrap_or_else(|_| {
@@ -125,6 +147,12 @@ impl Game for Cart {
             }
             Scene::Game { .. } => {}
         }
+
+        if !self.the_lady.alive() {
+            self.end_game(ctx);
+
+            return;
+        }
     }
 
     fn draw(&self, gfx: &mut Graphics) {
@@ -143,7 +171,7 @@ impl Game for Cart {
 fn retain_fn<E: Entity>(entity: &mut E, ctx: &mut Context, state: &CartState) -> bool {
     entity.update(ctx, state);
 
-    !entity.outside()
+    !entity.outside() && entity.alive()
 }
 
 #[derive(Debug, Clone)]

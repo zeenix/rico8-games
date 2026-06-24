@@ -1,4 +1,4 @@
-use rico8::{Body, Button, Color, Context, SpriteId, SCREEN_H, SCREEN_W};
+use rico8::{Body, Button, Color, Context, SfxId, SpriteId, SCREEN_H, SCREEN_W};
 
 use crate::{
     common::{Direction, Position, Size, Sprite},
@@ -14,6 +14,7 @@ pub struct EnemyAircraft {
     main_rotor: Rotor,
     tail_rotor: Rotor,
     last_bullet: f32,
+    alive: bool,
 }
 
 impl EnemyAircraft {
@@ -24,6 +25,7 @@ impl EnemyAircraft {
             main_rotor: Rotor::new(MAIN_ROTOR_OFFSET, MAIN_ROTOR_LENGTH),
             tail_rotor: Rotor::new(TAIL_ROTOR_OFFSET, TAIL_ROTOR_LENGTH),
             last_bullet: 0.0,
+            alive: true,
         }
     }
 
@@ -82,6 +84,10 @@ impl Entity for EnemyAircraft {
         entity::Type::Enemy
     }
 
+    fn alive(&self) -> bool {
+        self.alive
+    }
+
     fn update(&mut self, ctx: &mut Context, state: &CartState) {
         if matches!(state.scene, Scene::Game { .. }) {
             self.move_it(ctx, state);
@@ -106,6 +112,11 @@ impl Entity for EnemyAircraft {
 
         x >= SCREEN_H as f32 || (x + size.width) < 0.0 || y >= SCREEN_H as f32
     }
+
+    fn hit(&mut self, ctx: &mut Context) {
+        ctx.sfx(DESTROY_SFX);
+        self.alive = false;
+    }
 }
 
 const SPRITE_ID: SpriteId = SpriteId(32);
@@ -119,3 +130,4 @@ const TAIL_ROTOR_OFFSET: Position = Position { x: 2.0, y: 0.0 };
 const TAIL_ROTOR_LENGTH: f32 = 1.0;
 const STARTING_Y: f32 = -8.0;
 const SPEED: f32 = 0.3;
+const DESTROY_SFX: SfxId = SfxId(2);
