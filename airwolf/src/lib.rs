@@ -138,12 +138,8 @@ impl Game for Cart {
         self.the_lady.update(ctx, &self.state());
 
         match self.scene {
-            Scene::Start => {
-                self.start(ctx);
-            }
-            Scene::GameOver { ts } if ctx.time() - ts > GAME_OVER_TIMEOUT => {
-                self.start(ctx);
-            }
+            Scene::Start => self.start(ctx),
+            Scene::GameOver { ts } if ctx.time() - ts > GAME_OVER_TIMEOUT => self.start(ctx),
             Scene::GameOver { .. } => self.running_update(ctx),
             Scene::Game { start_time } => {
                 self.running_update(ctx);
