@@ -110,7 +110,7 @@ impl Cart {
         }
 
         // Spawn an enemy aircraft every 1-4 seconds in game mode.
-        let timeout = ctx.rnd(3.0) + 1.0;
+        let timeout = ctx.random(3.0) + 1.0;
         if time - self.last_enemy_ts > timeout {
             self.enemy_aircrafts
                 .push(EnemyAircraft::new(ctx))
