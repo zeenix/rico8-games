@@ -76,7 +76,7 @@ pub trait Entity: 'static {
         ctx: &mut Context,
         explosions: &mut VecView<Explosion>,
     ) {
-        if !self.collided(other) {
+        if !self.alive() || !other.alive() || !self.collided(other) {
             return;
         }
 
