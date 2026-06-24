@@ -53,6 +53,7 @@ impl Cart {
         }
 
         self.bullets.clear();
+        self.enemy_aircrafts.clear();
         self.the_lady = TheLady::new();
         self.smap = ScrollingMap::new();
         self.score = 0;
