@@ -73,35 +73,14 @@ impl Cart {
         };
     }
 
-    fn end_game(&mut self, ctx: &mut Context) {
-        self.scene = Scene::GameOver { ts: ctx.time() };
-        self.playing_music.take().map(|p| p.stop());
-        self.smap.stop_scrolling();
-    }
-
-    fn state(&self) -> CartState {
-        CartState {
-            scene: self.scene.clone(),
-            protoganist_pos: self.the_lady.body().draw_pos().into(),
-        }
-    }
-}
-
-impl Game for Cart {
-    fn update(&mut self, ctx: &mut Context) {
-        // Spawn an enemy aircraft every 1-4 seconds in game mode.
-        let timeout = ctx.rnd(3.0) + 1.0;
+    fn update_during_game(&mut self, ctx: &mut Context, start_time: f32) {
         let time = ctx.time();
-        if matches!(self.scene, Scene::Game { .. }) && time - self.last_enemy_ts > timeout {
-            self.enemy_aircrafts
-                .push(EnemyAircraft::new(ctx))
-                .unwrap_or_else(|_| {
-                    logf!(ctx, "Err: Too many aircrafts: {}", MAX_ENEMY_AIRCRAFTS);
-                });
-            self.last_enemy_ts = time;
+
+        if self.playing_music.is_some() && time - start_time > MUSIC_DURATION {
+            self.playing_music
+                .take()
+                .map(|p| p.fade_out(MUSIC_FAID_OUT_DURATION).stop());
         }
-        self.smap.update(ctx);
-        self.the_lady.update(ctx, &self.state());
 
         let state = self.state();
         self.bullets.retain_mut(|bullet| {
@@ -130,28 +109,52 @@ impl Game for Cart {
             })
         }
 
-        match &mut self.scene {
-            Scene::Start => {
-                self.start(ctx);
-            }
-            Scene::GameOver { ts } if time - *ts > GAME_OVER_TIMEOUT => {
-                self.start(ctx);
-            }
-            Scene::GameOver { .. } => {}
-            Scene::Game { start_time }
-                if self.playing_music.is_some() && time - *start_time > MUSIC_DURATION =>
-            {
-                self.playing_music
-                    .take()
-                    .map(|p| p.fade_out(MUSIC_FAID_OUT_DURATION).stop());
-            }
-            Scene::Game { .. } => {}
+        // Spawn an enemy aircraft every 1-4 seconds in game mode.
+        let timeout = ctx.rnd(3.0) + 1.0;
+        if time - self.last_enemy_ts > timeout {
+            self.enemy_aircrafts
+                .push(EnemyAircraft::new(ctx))
+                .unwrap_or_else(|_| {
+                    logf!(ctx, "Err: Too many aircrafts: {}", MAX_ENEMY_AIRCRAFTS);
+                });
+            self.last_enemy_ts = time;
         }
+    }
+
+    fn end_game(&mut self, ctx: &mut Context) {
+        self.scene = Scene::GameOver { ts: ctx.time() };
+        self.playing_music.take().map(|p| p.stop());
+        self.smap.stop_scrolling();
+    }
+
+    fn state(&self) -> CartState {
+        CartState {
+            scene: self.scene.clone(),
+            protoganist_pos: self.the_lady.body().draw_pos().into(),
+        }
+    }
+}
+
+impl Game for Cart {
+    fn update(&mut self, ctx: &mut Context) {
+        self.smap.update(ctx);
+        self.the_lady.update(ctx, &self.state());
 
         if !self.the_lady.alive() {
             self.end_game(ctx);
 
             return;
+        }
+
+        match self.scene {
+            Scene::Start => {
+                self.start(ctx);
+            }
+            Scene::GameOver { ts } if ctx.time() - ts > GAME_OVER_TIMEOUT => {
+                self.start(ctx);
+            }
+            Scene::GameOver { .. } => {}
+            Scene::Game { start_time } => self.update_during_game(ctx, start_time),
         }
     }
 
