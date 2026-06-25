@@ -21,7 +21,7 @@ pub struct EnemyAircraft {
 
 impl EnemyAircraft {
     pub fn new(ctx: &mut Context) -> Self {
-        let x = ctx.random(SCREEN_W as f32);
+        let x = ctx.random(0.0..SCREEN_W as f32);
         Self {
             body: Body::new(x, STARTING_Y),
             main_rotor: Rotor::new(MAIN_ROTOR_OFFSET, MAIN_ROTOR_LENGTH),

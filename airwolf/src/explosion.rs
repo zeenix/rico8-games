@@ -16,10 +16,10 @@ impl Explosion {
             sparks
                 .push(Spark {
                     pos: pos.clone(),
-                    x_velocity: ctx.random(2.0) - 1.0,
-                    y_velocity: ctx.random(2.0) - 1.0,
-                    radius: ctx.random(1.0) + 0.5,
-                    mass: ctx.random(2.0) + 0.5,
+                    x_velocity: ctx.random(-1.0..1.0),
+                    y_velocity: ctx.random(-1.0..1.0),
+                    radius: ctx.random(0.5..1.0),
+                    mass: ctx.random(0.5..2.0),
                 })
                 // We add exactly `MAX_SPARKS` sparks so this can't be `Err`.
                 .unwrap();
