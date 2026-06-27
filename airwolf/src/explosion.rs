@@ -5,6 +5,7 @@ use crate::common::Position;
 
 #[derive(Debug)]
 pub struct Explosion {
+    pos: Position,
     sparks: Vec<Spark, MAX_SPARKS>,
 }
 
@@ -15,7 +16,8 @@ impl Explosion {
         for _ in 0..MAX_SPARKS {
             sparks
                 .push(Spark {
-                    pos: pos.clone(),
+                    x_offset: 0,
+                    y_offset: 0,
                     x_velocity: ctx.random_integer(MIN_VELOCIY..MAX_VELOCIY) as i8,
                     y_velocity: ctx.random_integer(MIN_VELOCIY..MAX_VELOCIY) as i8,
                     radius: ctx.random_integer(MIN_RADIUS..MAX_RADIUS) as u8,
@@ -25,7 +27,7 @@ impl Explosion {
                 .unwrap();
         }
 
-        Self { sparks }
+        Self { pos, sparks }
     }
 
     pub fn update(&mut self, _ctx: &mut Context) {
@@ -35,18 +37,15 @@ impl Explosion {
 
         self.sparks.retain_mut(
             |Spark {
-                 pos: Position { x, y },
+                 x_offset,
+                 y_offset,
                  radius,
                  x_velocity,
                  y_velocity,
                  mass,
              }| {
-                let x_velocity = *x_velocity as f32 / i8::MAX as f32;
-                let y_velocity = *y_velocity as f32 / i8::MAX as f32;
-                let mass = *mass as f32 * 8.0 / u8::MAX as f32;
-
-                *x += x_velocity / mass;
-                *y += y_velocity / mass;
+                *x_offset += *x_velocity / (*mass as i8);
+                *y_offset += *y_velocity / (*mass as i8);
                 *radius = radius.saturating_sub(RADIUS_SHRINK_SPEED);
 
                 *radius > 0
@@ -57,12 +56,15 @@ impl Explosion {
     pub fn draw(&self, gfx: &mut Graphics) {
         self.sparks.iter().for_each(
             |Spark {
-                 pos: Position { x, y },
+                 x_offset,
+                 y_offset,
                  radius,
                  ..
              }| {
+                let x = self.pos.x as i32 + *x_offset as i32;
+                let y = self.pos.y as i32 + *y_offset as i32;
                 let radius = *radius as f32 / u8::MAX as f32 * 2.0;
-                gfx.circle_fill(*x as i32, *y as i32, radius as u32, SPARK_COLOR);
+                gfx.circle_fill(x, y, radius as u32, SPARK_COLOR);
             },
         );
     }
@@ -74,7 +76,8 @@ impl Explosion {
 
 #[derive(Debug)]
 struct Spark {
-    pos: Position,
+    x_offset: i8,
+    y_offset: i8,
     x_velocity: i8,
     y_velocity: i8,
     radius: u8,
@@ -85,9 +88,9 @@ const MAX_SPARKS: usize = 50;
 const RADIUS_SHRINK_SPEED: u8 = u8::MAX / 15;
 const SPARK_COLOR: Color = Color::LIGHT_GREY;
 
-const MIN_VELOCIY: i32 = i8::MIN as i32;
-const MAX_VELOCIY: i32 = i8::MAX as i32;
+const MIN_VELOCIY: i32 = -6;
+const MAX_VELOCIY: i32 = 6;
 const MIN_RADIUS: i32 = (u8::MAX / 15) as i32;
 const MAX_RADIUS: i32 = u8::MAX as i32;
-const MIN_MASS: i32 = (u8::MAX / 2) as i32;
-const MAX_MASS: i32 = u8::MAX as i32;
+const MIN_MASS: i32 = 4;
+const MAX_MASS: i32 = 8;
