@@ -1,4 +1,4 @@
-use core::f32::consts::PI;
+use core::{f32::consts::PI, num::NonZeroU8};
 
 use libm::{cosf, fmodf, sinf};
 use rico8::Color;
@@ -9,19 +9,19 @@ use crate::common::Position;
 pub struct Rotor {
     angle: f32,
     offset: Position,
-    length: f32,
+    length: NonZeroU8,
 
     // Position of edges.
     edges_pos: (Position, Position),
 }
 
 impl Rotor {
-    pub fn new(offset: Position, length: f32) -> Self {
+    pub fn new(offset: Position, length: NonZeroU8) -> Self {
         Self {
             angle: 0.0,
             offset,
             length,
-            edges_pos: (Position { x: 0.0, y: 0.0 }, Position { x: 0.0, y: 0.0 }),
+            edges_pos: (Position { x: 0, y: 0 }, Position { x: 0, y: 0 }),
         }
     }
 
@@ -30,8 +30,8 @@ impl Rotor {
 
         // FIXME: Do we need this?
         let angle = self.angle + PI;
-        let arm_x = cosf(angle) * self.length;
-        let arm_y = sinf(angle) * self.length;
+        let arm_x = (cosf(angle) * self.length.get() as f32) as i16;
+        let arm_y = (sinf(angle) * self.length.get() as f32) as i16;
         self.edges_pos = (
             Position {
                 x: aircraft_pos.x + arm_x + self.offset.x,
@@ -47,7 +47,7 @@ impl Rotor {
     pub fn draw(&self, gfx: &mut rico8::Graphics) {
         let (Position { x: x0, y: y0 }, Position { x: x1, y: y1 }) = self.edges_pos;
 
-        gfx.line(x0 as i16, y0 as i16, x1 as i16, y1 as i16, COLOR);
+        gfx.line(x0, y0, x1, y1, COLOR);
     }
 }
 

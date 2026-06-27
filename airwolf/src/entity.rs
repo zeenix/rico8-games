@@ -18,13 +18,12 @@ pub trait Entity: 'static {
     /// Returns `true` if the entity is outside the screen.
     fn outside(&self) -> bool {
         let (x, y) = self.body().draw_pos();
-        let (x, y) = (x as f32, y as f32);
         let size = self.sprite().size;
 
-        x >= SCREEN_HEIGHT as f32
-            || (x + size.width) < 0.0
-            || y >= SCREEN_HEIGHT as f32
-            || (y + size.height) < 0.0
+        x >= SCREEN_HEIGHT as i16
+            || (x + size.width.get() as i16) < 0
+            || y >= SCREEN_HEIGHT as i16
+            || (y + size.height.get() as i16) < 0
     }
 
     /// Wether this entity is still alive.
@@ -44,8 +43,8 @@ pub trait Entity: 'static {
             self.sprite().id,
             x,
             y,
-            size.width as u16,
-            size.height as u16,
+            size.width.get(),
+            size.height.get(),
             false,
             false,
         )
@@ -92,9 +91,7 @@ pub trait Entity: 'static {
         }
 
         let (our_x, our_y) = self.body().draw_pos();
-        let (our_x, our_y) = (our_x as f32, our_y as f32);
         let (other_x, other_y) = other.body().draw_pos();
-        let (other_x, other_y) = (other_x as f32, other_y as f32);
         let Size {
             width: our_width,
             height: our_height,
@@ -104,10 +101,10 @@ pub trait Entity: 'static {
             height: other_height,
         } = other.sprite().size;
 
-        our_x < other_x + other_width
-            && our_x + our_width > other_x
-            && our_y < other_y + other_height
-            && our_y + our_height > other_y
+        our_x < other_x + other_width.get() as i16
+            && our_x + our_width.get() as i16 > other_x
+            && our_y < other_y + other_height.get() as i16
+            && our_y + our_height.get() as i16 > other_y
     }
 
     fn hit(&mut self, ctx: &mut Context, explosions: &mut VecView<Explosion>);
@@ -115,7 +112,7 @@ pub trait Entity: 'static {
     fn destroy(&mut self, ctx: &mut Context, explosions: &mut VecView<Explosion>) {
         *self.alive_mut() = false;
         explosions
-            .push(Explosion::new(self.body().pos().into(), ctx))
+            .push(Explosion::new(self.body().draw_pos().into(), ctx))
             .unwrap_or_else(|_| {
                 logf!(ctx, "Err: Too many explosions: {}", super::MAX_EXPLOSIONS);
             });

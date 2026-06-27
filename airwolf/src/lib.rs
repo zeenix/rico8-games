@@ -270,7 +270,7 @@ const MAX_ENEMY_AIRCRAFTS: usize = 16;
 const MAX_EXPLOSIONS: usize = MAX_ENEMY_AIRCRAFTS + 8;
 // 3 seconds.
 const GAME_OVER_TIMEOUT: f32 = 3.0;
-const GAME_OVER_MSG_POS: Position = Position { x: 30.0, y: 70.0 };
+const GAME_OVER_MSG_POS: Position = Position { x: 30, y: 70 };
 const GAME_OVER_MSG_COLOR: Color = Color::WHITE;
 // 30 seconds.
 const MUSIC_DURATION: f32 = 30.0;
@@ -279,13 +279,13 @@ const MUSIC_FAID_OUT_DURATION: u32 = 5000;
 const LET_GO_SCORE_BUMP: u8 = 20;
 const DESTORY_SCORE_BUMP: u8 = 10;
 const SCORE_POS: Position = Position {
-    x: 1.0,
-    y: (SCREEN_HEIGHT - 8) as f32,
+    x: 1,
+    y: (SCREEN_HEIGHT as i16 - 8),
 };
 const HIGH_SCORE_POS: Position = Position {
     // 5 = length of the string printed.
     // 4 = pixels of each character.
-    x: (SCREEN_WIDTH - 5 * 4) as f32,
-    y: (SCREEN_HEIGHT - 8) as f32,
+    x: (SCREEN_WIDTH as i16 - 5 * 4),
+    y: (SCREEN_HEIGHT as i16 - 8),
 };
 const SCORE_COLOR: Color = Color::WHITE;

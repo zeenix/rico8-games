@@ -1,3 +1,5 @@
+use core::num::NonZeroU8;
+
 use heapless::VecView;
 use rico8::{Body, Context, SfxId, SpriteId, SCREEN_HEIGHT, SCREEN_WIDTH};
 
@@ -33,7 +35,6 @@ impl EnemyAircraft {
 
     fn move_it(&mut self, _ctx: &mut Context, state: &CartState) {
         let (x, _) = self.body.draw_pos();
-        let x = x as f32;
 
         // Enemy aircraft just moves slowly down the screen but horizontally towards the player.
         let dir = if x < state.protoganist_pos.x {
@@ -114,10 +115,9 @@ impl Entity for EnemyAircraft {
     // Override the "outside" definition since the aircraft is spawned above the screen.
     fn outside(&self) -> bool {
         let (x, y) = self.body().draw_pos();
-        let (x, y) = (x as f32, y as f32);
         let size = self.sprite().size;
 
-        x >= SCREEN_HEIGHT as f32 || (x + size.width) < 0.0 || y >= SCREEN_HEIGHT as f32
+        x >= SCREEN_HEIGHT as i16 || (x + size.width.get() as i16) < 0 || y >= SCREEN_HEIGHT as i16
     }
 
     fn hit(&mut self, ctx: &mut Context, explosions: &mut VecView<Explosion>) {
@@ -127,14 +127,11 @@ impl Entity for EnemyAircraft {
 }
 
 const SPRITE_ID: SpriteId = SpriteId(32);
-const SIZE: Size = Size {
-    width: 6.0,
-    height: 8.0,
-};
-const MAIN_ROTOR_OFFSET: Position = Position { x: 2.5, y: 4.0 };
-const MAIN_ROTOR_LENGTH: f32 = 2.0;
-const TAIL_ROTOR_OFFSET: Position = Position { x: 2.0, y: 0.0 };
-const TAIL_ROTOR_LENGTH: f32 = 1.0;
+const SIZE: Size = unsafe { Size::new_unchecked(6, 8) };
+const MAIN_ROTOR_OFFSET: Position = Position { x: 2, y: 4 };
+const MAIN_ROTOR_LENGTH: NonZeroU8 = unsafe { NonZeroU8::new_unchecked(3) };
+const TAIL_ROTOR_OFFSET: Position = Position { x: 2, y: 0 };
+const TAIL_ROTOR_LENGTH: NonZeroU8 = unsafe { NonZeroU8::new_unchecked(2) };
 const STARTING_Y: f32 = -8.0;
 const SPEED: f32 = 0.3;
 const DESTROY_SFX: SfxId = SfxId(2);

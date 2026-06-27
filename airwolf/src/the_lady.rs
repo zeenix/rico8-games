@@ -1,3 +1,5 @@
+use core::num::NonZeroU8;
+
 use heapless::VecView;
 use rico8::{Body, Button, Color, Context, SfxId, SpriteId, SCREEN_HEIGHT, SCREEN_WIDTH};
 
@@ -22,7 +24,7 @@ pub struct TheLady {
 impl TheLady {
     pub fn new() -> Self {
         Self {
-            body: Body::new(STARTING_POSITION.x, STARTING_POSITION.y),
+            body: Body::new(STARTING_POSITION.x as f32, STARTING_POSITION.y as f32),
             main_rotor: Rotor::new(MAIN_ROTOR_OFFSET, MAIN_ROTOR_LENGTH),
             tail_rotor: Rotor::new(TAIL_ROTOR_OFFSET, TAIL_ROTOR_LENGTH),
             last_bullet: 0.0,
@@ -32,13 +34,12 @@ impl TheLady {
 
     fn move_it(&mut self, ctx: &mut Context) {
         let (x, y) = self.body.draw_pos();
-        let (x, y) = (x as f32, y as f32);
         let Size { width, height } = self.sprite().size;
 
-        let can_left = x > -1.0;
-        let can_right = x + width < SCREEN_WIDTH as f32 - 2.0;
-        let can_up = y > 0.0;
-        let can_down = y + height < SCREEN_HEIGHT as f32;
+        let can_left = x > -1;
+        let can_right = x + (width.get() as i16) < SCREEN_WIDTH as i16 - 2;
+        let can_up = y > 0;
+        let can_down = y + (height.get() as i16) < SCREEN_HEIGHT as i16;
         let can_up_left = can_left && can_up;
         let can_down_left = can_left && can_down;
         let can_up_right = can_right && can_up;
@@ -151,14 +152,11 @@ impl Entity for TheLady {
 }
 
 const SPRITE_ID: SpriteId = SpriteId(1);
-const SIZE: Size = Size {
-    width: 8.0,
-    height: 8.0,
-};
-const MAIN_ROTOR_OFFSET: Position = Position { x: 4.5, y: 3.5 };
-const MAIN_ROTOR_LENGTH: f32 = 2.0;
-const TAIL_ROTOR_OFFSET: Position = Position { x: 4.0, y: 7.0 };
-const TAIL_ROTOR_LENGTH: f32 = 1.0;
-const STARTING_POSITION: Position = Position { x: 63.0, y: 111.0 };
+const SIZE: Size = unsafe { Size::new_unchecked(8, 8) };
+const MAIN_ROTOR_OFFSET: Position = Position { x: 4, y: 3 };
+const MAIN_ROTOR_LENGTH: NonZeroU8 = unsafe { NonZeroU8::new_unchecked(3) };
+const TAIL_ROTOR_OFFSET: Position = Position { x: 4, y: 7 };
+const TAIL_ROTOR_LENGTH: NonZeroU8 = unsafe { NonZeroU8::new_unchecked(2) };
+const STARTING_POSITION: Position = Position { x: 63, y: 111 };
 const SPEED: f32 = 0.7;
 const DESTROY_SFX: SfxId = SfxId(1);
