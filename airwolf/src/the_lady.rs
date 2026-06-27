@@ -1,5 +1,5 @@
 use heapless::VecView;
-use rico8::{Body, Button, Color, Context, SfxId, SpriteId, SCREEN_H, SCREEN_W};
+use rico8::{Body, Button, Color, Context, SfxId, SpriteId, SCREEN_HEIGHT, SCREEN_WIDTH};
 
 use crate::{
     common::{Direction, Position, Size, Sprite},
@@ -32,12 +32,13 @@ impl TheLady {
 
     fn move_it(&mut self, ctx: &mut Context) {
         let (x, y) = self.body.draw_pos();
+        let (x, y) = (x as f32, y as f32);
         let Size { width, height } = self.sprite().size;
 
         let can_left = x > -1.0;
-        let can_right = x + width < SCREEN_W as f32 - 2.0;
+        let can_right = x + width < SCREEN_WIDTH as f32 - 2.0;
         let can_up = y > 0.0;
-        let can_down = y + height < SCREEN_H as f32;
+        let can_down = y + height < SCREEN_HEIGHT as f32;
         let can_up_left = can_left && can_up;
         let can_down_left = can_left && can_down;
         let can_up_right = can_right && can_up;

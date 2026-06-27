@@ -62,7 +62,7 @@ impl Explosion {
                  ..
              }| {
                 let radius = *radius as f32 / u8::MAX as f32 * 2.0;
-                gfx.circle_fill(*x, *y, radius, SPARK_COLOR);
+                gfx.circle_fill(*x as i32, *y as i32, radius as u32, SPARK_COLOR);
             },
         );
     }

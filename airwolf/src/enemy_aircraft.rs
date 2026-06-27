@@ -1,5 +1,5 @@
 use heapless::VecView;
-use rico8::{Body, Context, SfxId, SpriteId, SCREEN_H, SCREEN_W};
+use rico8::{Body, Context, SfxId, SpriteId, SCREEN_HEIGHT, SCREEN_WIDTH};
 
 use crate::{
     common::{Direction, Position, Size, Sprite},
@@ -21,7 +21,7 @@ pub struct EnemyAircraft {
 
 impl EnemyAircraft {
     pub fn new(ctx: &mut Context) -> Self {
-        let x = ctx.random(0.0..SCREEN_W as f32);
+        let x = ctx.random(0.0..SCREEN_WIDTH as f32);
         Self {
             body: Body::new(x, STARTING_Y),
             main_rotor: Rotor::new(MAIN_ROTOR_OFFSET, MAIN_ROTOR_LENGTH),
@@ -33,6 +33,7 @@ impl EnemyAircraft {
 
     fn move_it(&mut self, _ctx: &mut Context, state: &CartState) {
         let (x, _) = self.body.draw_pos();
+        let x = x as f32;
 
         // Enemy aircraft just moves slowly down the screen but horizontally towards the player.
         let dir = if x < state.protoganist_pos.x {
@@ -113,9 +114,10 @@ impl Entity for EnemyAircraft {
     // Override the "outside" definition since the aircraft is spawned above the screen.
     fn outside(&self) -> bool {
         let (x, y) = self.body().draw_pos();
+        let (x, y) = (x as f32, y as f32);
         let size = self.sprite().size_in_blocks();
 
-        x >= SCREEN_H as f32 || (x + size.width) < 0.0 || y >= SCREEN_H as f32
+        x >= SCREEN_HEIGHT as f32 || (x + size.width) < 0.0 || y >= SCREEN_HEIGHT as f32
     }
 
     fn hit(&mut self, ctx: &mut Context, explosions: &mut VecView<Explosion>) {

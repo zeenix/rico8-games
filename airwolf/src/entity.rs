@@ -1,7 +1,7 @@
 use core::any::Any;
 
 use heapless::VecView;
-use rico8::{logf, Body, Context, Graphics, SCREEN_H};
+use rico8::{logf, Body, Context, Graphics, SCREEN_HEIGHT};
 
 use crate::{
     common::{Direction, Size, Sprite},
@@ -18,11 +18,12 @@ pub trait Entity: 'static {
     /// Returns `true` if the entity is outside the screen.
     fn outside(&self) -> bool {
         let (x, y) = self.body().draw_pos();
+        let (x, y) = (x as f32, y as f32);
         let size = self.sprite().size_in_blocks();
 
-        x >= SCREEN_H as f32
+        x >= SCREEN_HEIGHT as f32
             || (x + size.width) < 0.0
-            || y >= SCREEN_H as f32
+            || y >= SCREEN_HEIGHT as f32
             || (y + size.height) < 0.0
     }
 
@@ -38,17 +39,17 @@ pub trait Entity: 'static {
 
     fn draw_default(&self, gfx: &mut Graphics, _state: &CartState) {
         let (x, y) = self.body().draw_pos();
-        let size = self.sprite().size_in_blocks();
-
+        let size = self.sprite().size;
         gfx.sprite_ext(
             self.sprite().id,
             x,
             y,
-            size.width,
-            size.height,
+            size.width as i32,
+            size.height as i32,
             false,
             false,
-        );
+        )
+        .unwrap();
     }
 
     fn go(&mut self, dir: Direction, distance: f32) {
@@ -91,17 +92,17 @@ pub trait Entity: 'static {
         }
 
         let (our_x, our_y) = self.body().draw_pos();
+        let (our_x, our_y) = (our_x as f32, our_y as f32);
         let (other_x, other_y) = other.body().draw_pos();
+        let (other_x, other_y) = (other_x as f32, other_y as f32);
         let Size {
             width: our_width,
             height: our_height,
         } = self.sprite().size;
-        let (our_width, our_height) = (our_width as f32, our_height as f32);
         let Size {
             width: other_width,
             height: other_height,
         } = other.sprite().size;
-        let (other_width, other_height) = (other_width as f32, other_height as f32);
 
         our_x < other_x + other_width
             && our_x + our_width > other_x

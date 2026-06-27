@@ -1,4 +1,4 @@
-use rico8::{BitFlags, Color, Context, Graphics, SCREEN_H};
+use rico8::{BitFlags, Color, Context, Graphics, SCREEN_HEIGHT};
 
 #[derive(Debug)]
 pub struct ScrollingMap {
@@ -9,7 +9,7 @@ pub struct ScrollingMap {
 impl ScrollingMap {
     pub fn new() -> Self {
         Self {
-            scroll: -SCREEN_H as f32,
+            scroll: -(SCREEN_HEIGHT as f32),
             scrolling: true,
         }
     }
@@ -24,9 +24,9 @@ impl ScrollingMap {
         }
 
         // FIXME: Constant for the `16`.
-        let last_y = SCREEN_H * 16 - SCREEN_H;
+        let last_y = SCREEN_HEIGHT * 16 - SCREEN_HEIGHT;
         if self.scroll >= last_y as f32 {
-            self.scroll = -SCREEN_HEIGHT_TWICE;
+            self.scroll = -(SCREEN_HEIGHT_TWICE as f32);
         }
 
         self.scroll += SCROLL_SPEED;
@@ -35,14 +35,16 @@ impl ScrollingMap {
     pub fn draw(&self, gfx: &mut Graphics) {
         gfx.clear(Color::DARK_GREY);
 
+        let scroll = self.scroll as i32;
         for i in 0..=7 {
             let tile_x = i * 16;
-            let map_y = i as f32 * -SCREEN_HEIGHT_TWICE + self.scroll;
+            let map_y = i * -SCREEN_HEIGHT_TWICE + scroll;
 
-            gfx.map(tile_x, 0, 0.0, map_y, 16, 32, BitFlags::empty());
+            gfx.map(tile_x, 0, 0, map_y, 16, 32, BitFlags::empty())
+                .unwrap();
         }
     }
 }
 
-const SCREEN_HEIGHT_TWICE: f32 = SCREEN_H as f32 * 2.0;
+const SCREEN_HEIGHT_TWICE: i32 = SCREEN_HEIGHT as i32 * 2;
 const SCROLL_SPEED: f32 = 0.3;

@@ -154,14 +154,21 @@ impl Cart {
 
     fn show_score(&self, gfx: &mut Graphics) {
         if matches!(self.scene, Scene::Game { .. } | Scene::GameOver { .. }) {
-            printf!(gfx, SCORE_POS.x, SCORE_POS.y, SCORE_COLOR, "{}", self.score);
+            printf!(
+                gfx,
+                SCORE_POS.x as i32,
+                SCORE_POS.y as i32,
+                SCORE_COLOR,
+                "{}",
+                self.score
+            );
         }
 
         if self.high_score > 0 {
             printf!(
                 gfx,
-                HIGH_SCORE_POS.x,
-                HIGH_SCORE_POS.y,
+                HIGH_SCORE_POS.x as i32,
+                HIGH_SCORE_POS.y as i32,
                 SCORE_COLOR,
                 "{:5}",
                 self.high_score
@@ -227,7 +234,7 @@ impl Game for Cart {
         };
         if let Some(msg) = msg {
             let Position { x, y } = GAME_OVER_MSG_POS;
-            printf!(gfx, x, y, GAME_OVER_MSG_COLOR, "{}", msg);
+            printf!(gfx, x as i32, y as i32, GAME_OVER_MSG_COLOR, "{}", msg);
         }
 
         self.show_score(gfx);
@@ -273,12 +280,12 @@ const LET_GO_SCORE_BUMP: u8 = 20;
 const DESTORY_SCORE_BUMP: u8 = 10;
 const SCORE_POS: Position = Position {
     x: 1.0,
-    y: (SCREEN_H - 8) as f32,
+    y: (SCREEN_HEIGHT - 8) as f32,
 };
 const HIGH_SCORE_POS: Position = Position {
     // 5 = length of the string printed.
     // 4 = pixels of each character.
-    x: (SCREEN_W - 5 * 4) as f32,
-    y: (SCREEN_H - 8) as f32,
+    x: (SCREEN_WIDTH - 5 * 4) as f32,
+    y: (SCREEN_HEIGHT - 8) as f32,
 };
 const SCORE_COLOR: Color = Color::WHITE;

@@ -15,6 +15,15 @@ impl From<(f32, f32)> for Position {
     }
 }
 
+impl From<(i32, i32)> for Position {
+    fn from(value: (i32, i32)) -> Self {
+        Self {
+            x: value.0 as f32,
+            y: value.1 as f32,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct Size {
     pub width: f32,
